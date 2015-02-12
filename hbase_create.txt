@@ -1,0 +1,3 @@
+create 'mdays_test', 'BatchProcessResult'
+create 'bp_timestamp', 'Time'
+exit
