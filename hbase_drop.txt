@@ -1,0 +1,5 @@
+disable 'mdays_test'
+drop 'mdays_test'
+disable 'bp_timestamp'
+drop 'bp_timestamp'
+exit
