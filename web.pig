@@ -1,4 +1,4 @@
-Enter file contents hereregister /usr/lib/hbase/lib/*.jar;
+register /usr/lib/hbase/lib/*.jar;
 
 /**/
 
