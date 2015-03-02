@@ -1,8 +1,10 @@
-register /usr/lib/hbase/lib/*.jar;
+--register /usr/lib/hbase/lib/*.jar;
+
+%declare stime $time_start
 
 /**/
 
-register /usr/lib/pig/piggybank.jar;
+register /usr/hdp/2.2.0.0-2041/pig/piggybank.jar;
 define Stitch org.apache.pig.piggybank.evaluation.Stitch;
 define Over org.apache.pig.piggybank.evaluation.Over('int');
 
@@ -63,11 +65,12 @@ D4 = filter D3 by (row_id <= $n);
 E = group D4 by user_id;
 E2 = foreach E {
   EE = order D4 by row_id asc;
-  generate group as key, BagToString(EE.object_name, ',') as value;
+  generate CONCAT($0, CONCAT('_',(chararray)'$stime')) as key, BagToString(EE.object_name, ',') as value;
 }
 
 store E2 into 'hbase://mdays_test' using org.apache.pig.backend.hadoop.hbase.HBaseStorage(
   'BatchProcessResult:BP5');
+
 
 
 
