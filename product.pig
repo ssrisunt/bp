@@ -27,31 +27,33 @@ eccatalog_name:chararray, pgcatalog_name:chararray,
 name:chararray, price:chararray, object_name:chararray, brand:chararray);
 describe A;
 
-A2 = foreach A generate user_id,dump_time,name,
-                        DaysBetween(CurrentTime(), ToDate(dump_time, 'yyyy-MM-dd HH:mm:ss.SSS')) as date;
+A2 = foreach A generate user_id, dump_time, name,
+                        DaysBetween(CurrentTime(), ToDate(dump_time, 'yyyy-MM-dd HH:mm:ss.SSS')) as date,
+                        CONCAT(CONCAT(CONCAT(CONCAT(ecid, '_'), product_id), '_'), name) as ec_product_name;
 
 A3 = filter A2 by (date >= 0) and (date < $m) and (name is not null)
      and (not name matches 'null');
 
-A4 = group A3 by (user_id, name);
+A4 = group A3 by (user_id, ec_product_name);
 
-A5 = foreach A4 generate group.user_id as user_id, group.name as name,
+A5 = foreach A4 generate group.user_id as user_id,
+                         group.ec_product_name as ec_product_name,
                          COUNT(A3) as name_count;
 
 B = group A5 by user_id;
 describe B;
 
 C = foreach B {
-  C1 = order A5 by name_count desc, name asc;
+  C1 = order A5 by name_count desc, ec_product_name asc;
   generate flatten(Stitch(Over(C1, 'row_number'), C1));
 };
 describe C;
 
 D = foreach C generate stitched::user_id as user_id,
-                       stitched::name as name,
+                       stitched::ec_product_name as ec_product_name,
                        stitched::name_count as name_count,
                        $0 as row_id,
-                       CONCAT(CONCAT(CONCAT(stitched::name, ' ('), (chararray)name_count), ')') as name_with_count;
+                       CONCAT(CONCAT(CONCAT(stitched::ec_product_name, ' ('), (chararray)name_count), ')') as name_with_count;
 describe D;
 
 D2 = filter D by (row_id <= $n);
