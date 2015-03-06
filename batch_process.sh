@@ -4,6 +4,8 @@
 #do
 
 : << 'END'
+END
+
 # #1
 # recent M days, top N domains
 # (M >= 0) and (N >= 0)
@@ -25,7 +27,8 @@ rm /home/weichi/reddoor/bp/cmd.txt
 # #2
 # recent M days, top N domains, filter specific domains
 time_start_2=$(date "+%s%3N")
-pig -f /home/weichi/reddoor/bp/web2.pig -param m=10000000 -param n=20 -param domain='.*yahoo.*' -param time_start=$time_start_2
+#pig -f /home/weichi/reddoor/bp/web2.pig -param m=10000000 -param n=20 -param domain='.*yahoo.*' -param time_start=$time_start_2
+pig -f /home/weichi/reddoor/bp/web2.pig -param m=10000000 -param n=20 -param domain='.*wonderfulfood.*' -param time_start=$time_start_2
 time_end_2=$(date "+%s%3N")
 #echo "time_start_2: $time_start_2"
 #echo "time_end_2: $time_end_2"
@@ -38,7 +41,6 @@ exit" > /home/weichi/hw1/cmd.txt
 
 hbase shell /home/weichi/reddoor/bp/cmd.txt
 rm /home/weichi/reddoor/bp/cmd.txt
-END
 
 # #3
 # recent M days, top N products
@@ -57,7 +59,6 @@ exit" > /home/weichi/reddoor/bp/cmd.txt
 hbase shell /home/weichi/reddoor/bp/cmd.txt
 rm /home/weichi/reddoor/bp/cmd.txt
 
-: << 'END'
 # #4
 # recent M days, top N categories, order by frequency
 time_start_4=$(date "+%s%3N")
@@ -91,6 +92,8 @@ exit" > /home/weichi/reddoor/bp/cmd.txt
 
 hbase shell /home/weichi/reddoor/bp/cmd.txt
 rm /home/weichi/reddoor/bp/cmd.txt
+
+: << 'END'
 END
 
 printf "result:

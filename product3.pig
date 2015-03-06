@@ -34,10 +34,21 @@ A2 = foreach A generate user_id,dump_time,object_name,
 A3 = filter A2 by (date >= 0) and (date < $m) and (object_name is not null)
      and (not object_name matches 'null');
 
-B = group A3 by (user_id, object_name);
+--A32 = filter A3 by user_id == '0007EAB6-0EAF-4FE9-96AE-145DAC62C8CE';
+--A32 = filter A3 by user_id == '00044A91-6C92-4145-A8AF-D53D4CA494A2';
+--A32 = filter A3 by (user_id == '0007EAB6-0EAF-4FE9-96AE-145DAC62C8CE') or (user_id == '00044A91-6C92-4145-A8AF-D53D4CA494A2');
+
+A33 = foreach A3 generate user_id, dump_time, date, ms, flatten(STRSPLIT(object_name, '\\|')); -- {i}
+A331 = foreach A33 generate (chararray)$0, (chararray)$1, (long)$2, (long)$3, (bag{tuple()})TOBAG($4 ..) as bbb:bag{ttt:tuple()};
+
+A34 = foreach A331 generate $0 .. $3, flatten($4);
+
+A341 = foreach A34 generate (chararray)$0 as user_id, (chararray)$1, (long)$2, (long)$3 as ms, (chararray)$4 as object_name;
+
+B = group A341 by (user_id, object_name);
 
 C = foreach B {
-  CC = order A3 by ms asc;
+  CC = order A341 by ms asc;
   generate flatten(Stitch(Over(CC, 'row_number'), CC));
 }
 
