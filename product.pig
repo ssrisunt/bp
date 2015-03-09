@@ -17,8 +17,9 @@ ecid:chararray, product_id:chararray);
 describe A;
 */
 
+/*
 A = load '/user/hdfs/ReddoorExportDb' using PigStorage('\u0001')
-as (log_id:int, user_id:chararray, domain_name:chararray,
+as (log_id:long, user_id:chararray, domain_name:chararray,
 url:chararray, ip_address:chararray, dump_time:chararray,
 referer:chararray, session_id:chararray, page_title:chararray,
 sex:chararray, age:int, live_city:chararray,
@@ -26,10 +27,22 @@ ecid:chararray, product_id:chararray,
 eccatalog_name:chararray, pgcatalog_name:chararray,
 name:chararray, price:chararray, object_name:chararray, brand:chararray);
 describe A;
+*/
+
+A = load '/user/hdfs/ReddoorExportDb002' using PigStorage('\u0001')
+as (log_id:long, user_id:chararray, domain_name:chararray,
+    url:chararray, ip_address:chararray, dump_time:chararray,
+    referer:chararray, session_id:chararray, page_title:chararray,
+    sex:chararray, age:chararray, live_city:chararray, ec_id:chararray,
+    product_id:chararray, name:chararray, price:chararray,
+    ec_catalog_name:chararray, pg_catalog_name:chararray,
+    object_name:chararray, brand_name:chararray, web_name:chararray,
+    web_type:chararray);
+describe A;
 
 A2 = foreach A generate user_id, dump_time, name,
                         DaysBetween(CurrentTime(), ToDate(dump_time, 'yyyy-MM-dd HH:mm:ss.SSS')) as date,
-                        CONCAT(CONCAT(CONCAT(CONCAT(ecid, '_'), product_id), '_'), name) as ec_product_name;
+                        CONCAT(CONCAT(CONCAT(CONCAT(ec_id, '_'), product_id), '_'), name) as ec_product_name;
 
 A3 = filter A2 by (date >= 0) and (date < $m) and (name is not null)
      and (not name matches 'null');
@@ -66,7 +79,6 @@ E2 = foreach E {
   generate CONCAT($0, CONCAT('_',(chararray)'$stime')) as key, BagToString(EE.name_with_count, ',') as value;
 };
 describe E2;
---dump E2;
 
 --store E2 into 'hbase://mdays_test' using org.apache.pig.backend.hadoop.hbase.HBaseStorage(
 --  'BatchProcessResult:BP1 BatchProcessResult:timestamp');
