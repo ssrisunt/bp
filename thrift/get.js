@@ -16,7 +16,7 @@ connection.on('connect', function () {
   // row is rowid, columns is array of TColumn, please refer to hbase_types.js
   var tGet = new HBaseTypes.TGet({row: rowkey,
     columns: [new HBaseTypes.TColumn({family: 'BatchProcessResult', qualifier: 'BP1'})]});
-  client.get('mdays_test', tGet, function (err, data) {
+  client.get('mdays', tGet, function (err, data) {
     if (err) {
       console.log(err);
     } else {

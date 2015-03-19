@@ -43,16 +43,17 @@ C3 = filter C2 by ($0 <= $n);
 
 C4 = foreach C3 generate stitched::user_id as user_id,
                          $0 as row_id,
-                         CONCAT(CONCAT(CONCAT(stitched::domain_name, ' ('), (chararray)domain_count), ')') as domain_with_count;
+                         CONCAT(CONCAT(CONCAT(domain_name, ' ('), (chararray)domain_count), ')') as domain_with_count;
 
 
 D = group C4 by user_id;
+
 D2 = foreach D {
     DD = order C4 by row_id asc;
     generate CONCAT($0, CONCAT('_',(chararray)'$stime')) as key, BagToString(DD.domain_with_count, ',') as value;
 };
 
 
-store D2 into 'hbase://mdays_test' using org.apache.pig.backend.hadoop.hbase.HBaseStorage(
+store D2 into 'hbase://mdays' using org.apache.pig.backend.hadoop.hbase.HBaseStorage(
     'BatchProcessResult:BP1');
 

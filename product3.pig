@@ -8,26 +8,6 @@ register /usr/hdp/2.2.0.0-2041/pig/piggybank.jar;
 define Stitch org.apache.pig.piggybank.evaluation.Stitch;
 define Over org.apache.pig.piggybank.evaluation.Over('int');
 
-/*
-A = load '/user/hdfs/wc_test2/part-r-00000_v2' using PigStorage('\u0001')
-as (rowid:int, user_id:chararray, domain_name:chararray,
-url:chararray, ip_address:chararray, dump_time:chararray,
-referer:chararray, session_id:chararray,
-ecid:chararray, product_id:chararray);
-describe A;
-*/
-
-/*
-A = load '/user/hdfs/ReddoorExportDb' using PigStorage('\u0001')
-as (log_id:long, user_id:chararray, domain_name:chararray,
-url:chararray, ip_address:chararray, dump_time:chararray,
-referer:chararray, session_id:chararray, page_title:chararray,
-sex:chararray, age:int, live_city:chararray,
-ecid:chararray, product_id:chararray,
-eccatalog_name:chararray, pgcatalog_name:chararray,
-name:chararray, price:chararray, object_name:chararray, brand:chararray);
-describe A;
-*/
 
 A = load '/user/hdfs/ReddoorExportDb002' using PigStorage('\u0001')
 as (log_id:long, user_id:chararray, domain_name:chararray,
@@ -38,65 +18,60 @@ as (log_id:long, user_id:chararray, domain_name:chararray,
     ec_catalog_name:chararray, pg_catalog_name:chararray,
     object_name:chararray, brand_name:chararray, web_name:chararray,
     web_type:chararray);
-describe A;
 
-A2 = foreach A generate user_id, dump_time, object_name,
-                        DaysBetween(CurrentTime(), ToDate(dump_time, 'yyyy-MM-dd HH:mm:ss.SSS')) as date,
-                        MilliSecondsBetween(CurrentTime(), ToDate(dump_time, 'yyyy-MM-dd HH:mm:ss.SSS')) as ms;
+A2 = foreach A generate user_id, object_name,
+                        DaysBetween(CurrentTime(), ToDate(dump_time, 'yyyy-MM-dd HH:mm:ss.SSS')) as date_diff,
+                        MilliSecondsBetween(CurrentTime(), ToDate(dump_time, 'yyyy-MM-dd HH:mm:ss.SSS')) as ms_diff;
 
-A3 = filter A2 by (date >= 0) and (date < $m) and (object_name is not null)
-     and (not object_name matches 'null');
+A3 = filter A2 by (date_diff >= 0) and (date_diff < $m)
+    and (object_name is not null) and (not object_name matches 'null');
 
---A32 = filter A3 by user_id == '0007EAB6-0EAF-4FE9-96AE-145DAC62C8CE';
---A32 = filter A3 by user_id == '00044A91-6C92-4145-A8AF-D53D4CA494A2';
---A32 = filter A3 by (user_id == '0007EAB6-0EAF-4FE9-96AE-145DAC62C8CE') or (user_id == '00044A91-6C92-4145-A8AF-D53D4CA494A2');
 
-A33 = foreach A3 generate user_id, dump_time, date, ms, flatten(STRSPLIT(object_name, '\\|')); -- {i}
-A331 = foreach A33 generate (chararray)$0, (chararray)$1, (long)$2, (long)$3, (bag{tuple()})TOBAG($4 ..) as bbb:bag{ttt:tuple()};
+B = foreach A3 generate user_id, ms_diff, flatten(STRSPLIT(object_name, '\\|'));
 
-A34 = foreach A331 generate $0 .. $3, flatten($4);
+B2 = foreach B generate (chararray)$0, (long)$1, (bag{tuple()})TOBAG($2 ..) as b2_bag:bag{b2_tuple:tuple()};
 
-A341 = foreach A34 generate (chararray)$0 as user_id, (chararray)$1, (long)$2, (long)$3 as ms, (chararray)$4 as object_name;
+B3 = foreach B2 generate $0 .. $1, flatten($2);
 
-B = group A341 by (user_id, object_name);
+B4 = foreach B3 generate (chararray)$0 as user_id, (long)$1 as ms_diff, (chararray)$2 as object_name;
 
-C = foreach B {
-  CC = order A341 by ms asc;
-  generate flatten(Stitch(Over(CC, 'row_number'), CC));
+
+C = group B4 by (user_id, object_name);
+
+C2 = foreach C {
+    CC = order B4 by ms_diff asc;
+    generate flatten(Stitch(Over(CC, 'row_number'), CC));
 }
 
-C1 = foreach C generate stitched::user_id as user_id,
-                        stitched::object_name as object_name,
-                        stitched::ms as ms,
-                        $0 as row_id;
+C3 = filter C2 by ($0 == 1);
 
-C2 = filter C1 by (row_id == 1);
+C4 = foreach C3 generate stitched::user_id as user_id,
+                         stitched::object_name as object_name,
+                         stitched::ms_diff as ms_diff;
 
-D = group C2 by user_id;
+
+D = group C4 by user_id;
 
 D2 = foreach D {
-  DD = order C2 by ms asc, object_name asc;
-  generate flatten(Stitch(Over(DD, 'row_number'), DD));
+    DD = order C4 by ms_diff asc, object_name asc;
+    generate flatten(Stitch(Over(DD, 'row_number'), DD));
 }
 
-D3 = foreach D2 generate stitched::user_id as user_id,
+D3 = filter D2 by ($0 <= $n);
+
+D4 = foreach D3 generate stitched::user_id as user_id,
                          stitched::object_name as object_name,
-                         stitched::ms as ms,
                          $0 as row_id;
 
-D4 = filter D3 by (row_id <= $n);
 
 E = group D4 by user_id;
+
 E2 = foreach E {
-  EE = order D4 by row_id asc;
-  generate CONCAT($0, CONCAT('_',(chararray)'$stime')) as key, BagToString(EE.object_name, ',') as value;
+    EE = order D4 by row_id asc;
+    generate CONCAT($0, CONCAT('_',(chararray)'$stime')) as key, BagToString(EE.object_name, ',') as value;
 }
-describe E2;
-
-store E2 into 'hbase://mdays_test' using org.apache.pig.backend.hadoop.hbase.HBaseStorage(
-  'BatchProcessResult:BP5');
 
 
-
-
+store E2 into 'hbase://mdays' using org.apache.pig.backend.hadoop.hbase.HBaseStorage(
+    'BatchProcessResult:BP5');
 

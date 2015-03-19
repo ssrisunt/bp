@@ -4,7 +4,7 @@ var tableName = process.argv[3];
 
 /* scan command:
  * node command.js action tableName startRow endRow cf qualifier
- * e.g., node command.js scan mdays_test 0001C1FE-DFB9-4136-83D0-68B2F9ADA0E5 0001C1FE-DFB9-4136-83D0-68B2F9ADA0E6 BatchProcessResult BP1
+ * e.g., node command.js scan mdays 0001C1FE-DFB9-4136-83D0-68B2F9ADA0E5 0001C1FE-DFB9-4136-83D0-68B2F9ADA0E6 BatchProcessResult BP1
  */  
 
 /* put command:

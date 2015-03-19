@@ -10,7 +10,7 @@ END
 # recent M days, top N domains
 # (M >= 0) and (N >= 0)
 time_start_1=$(date "+%s%3N")
-pig -f /home/weichi/reddoor/bp/web.pig -param m=10000000 -param n=20 -param domain='.*' -param time_start=$time_start_1
+pig -f /home/weichi/reddoor/bp/web.pig -param m=10000000 -param n=20 -param time_start=$time_start_1
 time_end_1=$(date "+%s%3N")
 #echo "time_start_1: $time_start_1"
 #echo "time_end_1: $time_end_1"
@@ -28,7 +28,7 @@ rm /home/weichi/reddoor/bp/cmd.txt
 # recent M days, top N domains, filter specific domains
 time_start_2=$(date "+%s%3N")
 #pig -f /home/weichi/reddoor/bp/web2.pig -param m=10000000 -param n=20 -param domain='.*yahoo.*' -param time_start=$time_start_2
-pig -f /home/weichi/reddoor/bp/web2.pig -param m=10000000 -param n=20 -param domain='.*wonderfulfood.*' -param time_start=$time_start_2
+pig -f /home/weichi/reddoor/bp/web2.pig -param m=10000000 -param n=20 -param time_start=$time_start_2
 time_end_2=$(date "+%s%3N")
 #echo "time_start_2: $time_start_2"
 #echo "time_end_2: $time_end_2"
@@ -45,7 +45,7 @@ rm /home/weichi/reddoor/bp/cmd.txt
 # #3
 # recent M days, top N products
 time_start_3=$(date "+%s%3N")
-pig -f /home/weichi/reddoor/bp/product.pig -param m=10000000 -param n=20 -param domain='.*' -param time_start=$time_start_3
+pig -f /home/weichi/reddoor/bp/product.pig -param m=10000000 -param n=20 -param time_start=$time_start_3
 time_end_3=$(date "+%s%3N")
 #echo "time_start_3: $time_start_3"
 #echo "time_end_3: $time_end_3"
@@ -62,7 +62,7 @@ rm /home/weichi/reddoor/bp/cmd.txt
 # #4
 # recent M days, top N categories, order by frequency
 time_start_4=$(date "+%s%3N")
-pig -f /home/weichi/reddoor/bp/product2.pig -param m=10000000 -param n=20 -param domain='.*' -param time_start=$time_start_4
+pig -f /home/weichi/reddoor/bp/product2.pig -param m=10000000 -param n=20 -param time_start=$time_start_4
 time_end_4=$(date "+%s%3N")
 #echo "time_start_4: $time_start_4"
 #echo "time_end_4: $time_end_4"
@@ -79,7 +79,7 @@ rm /home/weichi/reddoor/bp/cmd.txt
 # #5
 # recent M days, top N categories, order by date
 time_start_5=$(date "+%s%3N")
-pig -f /home/weichi/reddoor/bp/product3.pig -param m=10000000 -param n=20 -param domain='.*' -param time_start=$time_start_5
+pig -f /home/weichi/reddoor/bp/product3.pig -param m=10000000 -param n=20 -param time_start=$time_start_5
 time_end_5=$(date "+%s%3N")
 #echo "time_start_5: $time_start_5"
 #echo "time_end_5: $time_end_5"

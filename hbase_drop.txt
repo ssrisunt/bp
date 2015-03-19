@@ -1,5 +1,5 @@
-disable 'mdays_test'
-drop 'mdays_test'
+disable 'mdays'
+drop 'mdays'
 disable 'bp_timestamp'
 drop 'bp_timestamp'
 exit
